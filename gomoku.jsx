@@ -372,6 +372,16 @@ function coordName(r, c) {
   return `${COL_LABELS[c]}${SIZE - r}`;
 }
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const fn = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+  return width;
+}
+
 export default function App() {
   const [board, setBoard] = useState(emptyBoard);
   const [history, setHistory] = useState([]); // {r,c,player}
@@ -389,6 +399,8 @@ export default function App() {
 
   const aiColor = opponent(humanColor);
   const [showGuide, setShowGuide] = useState(false);
+  const vw = useWindowWidth();
+  const isMobile = vw < 640;
 
   const resetGame = useCallback(() => {
     setBoard(emptyBoard());
@@ -539,11 +551,11 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: COLORS.bg, color: COLORS.text, fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "24px 16px 48px" }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: isMobile ? "14px 10px 32px" : "24px 16px 48px" }}>
         {/* 헤더 */}
         <header style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+            <h1 style={{ margin: 0, fontSize: isMobile ? 20 : 26, fontWeight: 700, letterSpacing: "-0.02em", fontFamily: "Georgia, 'Times New Roman', serif" }}>
               오목 연구실 <span style={{ color: COLORS.gold }}>·</span> <span style={{ color: COLORS.textDim, fontSize: 16, fontWeight: 400 }}>Gomoku Study</span>
             </h1>
             <p style={{ margin: "4px 0 0", color: COLORS.textDim, fontSize: 13 }}>
@@ -600,9 +612,9 @@ export default function App() {
         )}
 
         {/* 본문: 보드 + 패널 */}
-        <div style={{ display: "flex", gap: 22, flexWrap: "wrap", alignItems: "flex-start" }}>
+        <div style={{ display: "flex", gap: isMobile ? 14 : 22, flexWrap: "wrap", alignItems: "flex-start" }}>
           {/* 보드 */}
-          <div style={{ flex: "1 1 480px", minWidth: 320, display: "flex", justifyContent: "center" }}>
+          <div style={{ flex: isMobile ? "0 0 100%" : "1 1 480px", minWidth: isMobile ? 0 : 320, display: "flex", justifyContent: "center" }}>
             <div style={{ position: "relative", width: "100%", maxWidth: BOARD_PX }}>
               <svg viewBox={`0 0 ${BOARD_PX} ${BOARD_PX}`} width="100%" style={{ display: "block", borderRadius: 10, boxShadow: "0 8px 30px rgba(0,0,0,0.45)" }}>
                 <defs>
@@ -694,7 +706,7 @@ export default function App() {
           </div>
 
           {/* 사이드 패널 */}
-          <div style={{ flex: "1 1 280px", minWidth: 260, display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ flex: isMobile ? "0 0 100%" : "1 1 280px", minWidth: isMobile ? 0 : 260, display: "flex", flexDirection: "column", gap: 14 }}>
             {/* 상태 */}
             <div style={{ background: COLORS.surface, border: `1px solid ${COLORS.line}`, borderRadius: 14, padding: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
@@ -865,6 +877,8 @@ const STAGE4_DATA = [
 function GuidePanel({ onClose }) {
   const [tab, setTab] = useState(0);
   const TABS = ["기본 패턴", "필사 공격", "VCF 수읽기", "개시 정석"];
+  const vw = useWindowWidth();
+  const isMobile = vw < 640;
 
   return (
     <div style={{ background: COLORS.surface, border: `1px solid ${COLORS.line}`, borderRadius: 14, marginBottom: 18, overflow: "hidden" }}>
@@ -878,14 +892,14 @@ function GuidePanel({ onClose }) {
       </div>
 
       {/* 탭 바 */}
-      <div style={{ display: "flex", padding: "0 18px", borderBottom: `1px solid ${COLORS.line}`, marginTop: 10 }}>
+      <div style={{ display: "flex", padding: "0 18px", borderBottom: `1px solid ${COLORS.line}`, marginTop: 10, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         {TABS.map((t, i) => (
           <button key={i} onClick={() => setTab(i)} style={{
-            background: "none", border: "none", cursor: "pointer", padding: "8px 14px",
-            fontSize: 13, fontWeight: tab === i ? 600 : 400,
+            background: "none", border: "none", cursor: "pointer", padding: isMobile ? "8px 10px" : "8px 14px",
+            fontSize: isMobile ? 12 : 13, fontWeight: tab === i ? 600 : 400,
             color: tab === i ? COLORS.gold : COLORS.textDim,
             borderBottom: `2px solid ${tab === i ? COLORS.gold : "transparent"}`,
-            marginBottom: -1, transition: "color 0.15s",
+            marginBottom: -1, transition: "color 0.15s", whiteSpace: "nowrap", flexShrink: 0,
           }}>
             {i + 1}단계 · {t}
           </button>
@@ -893,7 +907,7 @@ function GuidePanel({ onClose }) {
       </div>
 
       {/* 내용 */}
-      <div style={{ padding: 18, maxHeight: 520, overflowY: "auto" }}>
+      <div style={{ padding: isMobile ? 12 : 18, maxHeight: isMobile ? 400 : 520, overflowY: "auto" }}>
 
         {/* ── 1단계: 기본 패턴 ── */}
         {tab === 0 && (
@@ -931,7 +945,7 @@ function GuidePanel({ onClose }) {
                 </div>
                 <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
                   <MiniBoard grid={p.grid} cellSize={22} />
-                  <div style={{ flex: 1, minWidth: 180 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ background: COLORS.surface, borderRadius: 8, padding: "8px 12px", marginBottom: 8 }}>
                       <span style={{ fontSize: 12, color: COLORS.green }}>{p.result}</span>
                     </div>
@@ -1024,7 +1038,7 @@ function GuidePanel({ onClose }) {
                   ".......",
                   ".......",
                 ]} />
-                <div style={{ flex: 1, minWidth: 200, fontSize: 12.5, color: COLORS.textDim, lineHeight: 1.9 }}>
+                <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: COLORS.textDim, lineHeight: 1.9 }}>
                   <b style={{ color: COLORS.text }}>1수 (흑)</b> — 천원(정중앙) 고정<br />
                   <b style={{ color: COLORS.text }}>2수 (백)</b> — 인접 8칸 중 자유 선택<br />
                   <b style={{ color: COLORS.text }}>3수 (흑)</b> — 5×5 범위 내에서 선택<br /><br />
