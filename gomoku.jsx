@@ -615,7 +615,7 @@ export default function App() {
         <div style={{ display: "flex", gap: isMobile ? 14 : 22, flexWrap: "wrap", alignItems: "flex-start" }}>
           {/* 보드 */}
           <div style={{ flex: isMobile ? "0 0 100%" : "1 1 480px", minWidth: isMobile ? 0 : 320, display: "flex", justifyContent: "center" }}>
-            <div style={{ position: "relative", width: "100%", maxWidth: BOARD_PX }}>
+            <div style={{ position: "relative", width: "100%", maxWidth: isMobile ? BOARD_PX : undefined }}>
               <svg viewBox={`0 0 ${BOARD_PX} ${BOARD_PX}`} width="100%" style={{ display: "block", borderRadius: 10, boxShadow: "0 8px 30px rgba(0,0,0,0.45)" }}>
                 <defs>
                   <radialGradient id="woodG" cx="35%" cy="30%" r="80%">
